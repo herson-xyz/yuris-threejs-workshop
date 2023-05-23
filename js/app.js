@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import fragmentShader from './shaders/fragment.glsl'
 import vertexShader from './shaders/vertex.glsl'
+import texture from '../img/test.jpg'
 
 export default class Sketch {
     constructor(options) {
@@ -41,15 +42,50 @@ export default class Sketch {
     }
 
     addObjects() {
-        this.geometry = new THREE.PlaneGeometry(1, 1, 10, 10)
+        this.size = 32
+        this.geometry = new THREE.BufferGeometry()
+        const positions = new Float32Array(this.size * this.size * 3)
+        const uvs = new Float32Array(this.size * this.size * 2)
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const index = i * this.size + j
+                positions[index * 3 + 0] = (j / this.size) - 0.5
+                positions[index * 3 + 1] = (i / this.size) - 0.5
+                positions[index * 3 + 2] = 0
+                uvs[index * 2 + 0] = j / (this.size - 1)
+                uvs[index * 2 + 1] = i / (this.size - 1)
+            }
+        }
+        this.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+        this.geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
+
+        
+        const data = new Float32Array(this.size * this.size * 4)
+        for (let i = 0; i < this.size; i++) {
+            for (let j = 0; j < this.size; j++) {
+                const index = i * this.size + j
+                data[index * 4 + 0] = Math.random() * 2 - 1
+                data[index * 4 + 1] = Math.random() * 2 - 1
+                data[index * 4 + 2] = 0
+                data[index * 4 + 3] = 1
+            }
+        }
+        
+        this.positions = new THREE.DataTexture(data, this.size, this.size, THREE.RGBAFormat, THREE.FloatType)
+        this.positions.needsUpdate = true
+
         this.material = new THREE.ShaderMaterial({
             uniforms: {
                 time: { value: 0.0 },
+                // uTexture: { value: new THREE.TextureLoader().load(texture)}
+                uTexture: { value: this.positions }
             },
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             wireframe: true
         })
+
+
 
         this.mesh = new THREE.Points(this.geometry, this.material)
         this.scene.add(this.mesh)

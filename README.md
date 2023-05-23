@@ -1,7 +1,7 @@
 # Dynamic GPGPU Particles with Three.js & React Three Fiber Tutorial
 
 A Peek into the Lessons:
-![](./img/2023-05-22-1.gif)
+![](./img/2023-05-23-1.gif)
 
 ---
 ## Description
